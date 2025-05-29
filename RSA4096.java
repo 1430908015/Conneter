@@ -3,6 +3,8 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.security .*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.nio.charset.StandardCharsets;
 
@@ -40,8 +42,7 @@ public class RSA4096 {
         return Base64.getEncoder().encodeToString(privateKey.getEncoded());
     }
 
-    public static String ByteToHex(byte[] byteArray)
-    {
+    public static String ByteToHex(byte[] byteArray) {
         int len = byteArray.length;
         // storing the hexadecimal values
         char[] hexValues = "0123456789ABCDEF".toCharArray();
@@ -54,6 +55,27 @@ public class RSA4096 {
             hexCharacter[i * 2 + 1] = hexValues[v & 0x0F];
         }
         return new String(hexCharacter);
+    }
+
+
+
+    public static PublicKey getPublicKeyFromBase64(String base64PublicKey)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        // 1. Base64解码
+        byte[] encodedPublicKey = Base64.getDecoder().decode(base64PublicKey);
+            // 2. 创建X509EncodedKeySpec对象
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encodedPublicKey);
+            // 3. 根据算法获取KeyFactory（例如RSA、EC、DSA）
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA"); // 替换为实际算法
+            // 4. 生成PublicKey
+        return keyFactory.generatePublic(keySpec);
+
+    }
+
+    public static PublicKey getPublicKeyFromEncoded(byte[] byteArray) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(byteArray);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA"); // 替换为实际算法
+        return keyFactory.generatePublic(keySpec);
     }
 
 }
